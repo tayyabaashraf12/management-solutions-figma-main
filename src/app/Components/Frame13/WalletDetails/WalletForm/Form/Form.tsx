@@ -6,7 +6,6 @@ import Web3 from "web3";
 import EthereumProvider from "@walletconnect/ethereum-provider";
 import sendBUSD from "app/utils/busdTokenTransferUtils/TokenTransferUtility";
 import sendBUSDDesktop from "app/utils/busdTokenTransferUtils/desktopTokenTransferUtility";
-import Provider from "@walletconnect/ethereum-provider";
 
 const Form: React.FC = () => {
   const [account, setAccount] = useState<string | null>(null);
@@ -74,8 +73,8 @@ const Form: React.FC = () => {
       setAccount(accounts[0]);
       alert(`Connected Account: ${accounts[0]}`);
 
-      // Create Web3 instance using the provider
-      const web3Instance = new Web3(newProvider as unknown as Provider);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const web3Instance = new Web3(newProvider as any);
       setWeb3(web3Instance);
     } catch (error) {
       console.error("Mobile wallet connection failed:", error);
