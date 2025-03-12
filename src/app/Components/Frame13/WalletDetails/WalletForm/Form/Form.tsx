@@ -129,71 +129,6 @@ const Form: React.FC = () => {
     setBalance(fetchedBalance);
   };
 
-  // const sendBUSD = async (
-  //   recipientWalletAddress: string,
-  //   amount: string | number,
-  //   senderWalletAddress: string | null,
-  //   web3: Web3 | null,
-  //   provider: EthereumProvider | null
-  // ): Promise<string | null> => {
-  //   try {
-  //     if (!provider) {
-  //       alert("Provider not available in sendBUSD");
-  //       return null;
-  //     }
-
-  //     if (!web3) {
-  //       alert("Web3 instance not available in sendBUSD");
-  //       console.error("Web3 instance not found!");
-  //       return null;
-  //     }
-
-  //     if (!senderWalletAddress) {
-  //       alert("Sender wallet address not available in sendBUSD");
-  //       console.error("Sender address not found!");
-  //       return null;
-  //     }
-
-  //     console.log(`Sender Wallet Address: ${senderWalletAddress}`);
-
-  //     await provider.request({ method: "eth_requestAccounts" });
-
-  //     const amountInWei = web3.utils.toWei(amount.toString(), "ether");
-
-  //     const busdContractAddress = "0x8516Fc284AEEaa0374E66037BD2309349FF728eA";
-  //     const busdContractInstance = new web3.eth.Contract(
-  //       busdABI,
-  //       busdContractAddress
-  //     );
-
-  //     const txData = busdContractInstance.methods
-  //       .transfer(recipientWalletAddress, amountInWei)
-  //       .encodeABI();
-
-  //     const transactionParameters = {
-  //       to: busdContractAddress,
-  //       from: senderWalletAddress,
-  //       data: txData,
-  //       gas: web3.utils.toHex(500000),
-  //     };
-
-  //     const metamaskDeepLink = `https://metamask.app.link/dapp/${window.location.origin}`;
-
-  //     window.location.href = metamaskDeepLink;
-
-  //     const tx = (await provider.request({
-  //       method: "eth_sendTransaction",
-  //       params: [transactionParameters],
-  //     })) as string;
-
-  //     console.log("Transaction Successful:", tx);
-  //     return tx || null;
-  //   } catch (error) {
-  //     console.error("Transaction Failed:", error);
-  //     alert(`Error in sendBUSD: ${error}`);
-  //     return null;
-  //   }
-  // };
   const sendBUSD = async (
     recipientWalletAddress: string,
     amount: string | number,
@@ -221,6 +156,8 @@ const Form: React.FC = () => {
 
       console.log(`Sender Wallet Address: ${senderWalletAddress}`);
 
+      await provider.request({ method: "eth_requestAccounts" });
+
       const amountInWei = web3.utils.toWei(amount.toString(), "ether");
 
       const busdContractAddress = "0x8516Fc284AEEaa0374E66037BD2309349FF728eA";
@@ -240,20 +177,17 @@ const Form: React.FC = () => {
         gas: web3.utils.toHex(500000),
       };
 
-      // 🔗 Generate Metamask Deep Link with transaction details
-      const params = new URLSearchParams({
-        to: transactionParameters.to,
-        from: transactionParameters.from,
-        data: transactionParameters.data,
-        gas: transactionParameters.gas,
-      });
+      const metamaskDeepLink = `https://metamask.app.link/dapp/${window.location.origin}`;
 
-      const metamaskDeepLink = `https://metamask.app.link/transaction?${params.toString()}`;
-
-      // 🌐 Redirect user to Metamask mobile app
       window.location.href = metamaskDeepLink;
 
-      return null;
+      const tx = (await provider.request({
+        method: "eth_sendTransaction",
+        params: [transactionParameters],
+      })) as string;
+
+      console.log("Transaction Successful:", tx);
+      return tx || null;
     } catch (error) {
       console.error("Transaction Failed:", error);
       alert(`Error in sendBUSD: ${error}`);
