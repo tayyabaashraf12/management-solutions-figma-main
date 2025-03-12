@@ -75,7 +75,7 @@ const Form: React.FC = () => {
       alert(`Connected Account: ${accounts[0]}`);
 
       // Create Web3 instance using the provider
-      const web3Instance = new Web3(newProvider as Provider);
+      const web3Instance = new Web3(newProvider as unknown as Provider);
       setWeb3(web3Instance);
     } catch (error) {
       console.error("Mobile wallet connection failed:", error);
