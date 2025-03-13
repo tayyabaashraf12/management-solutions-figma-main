@@ -30,6 +30,14 @@ const Form: React.FC = () => {
         rpcMap: { 97: "https://data-seed-prebsc-1-s1.binance.org:8545/" },
         showQrModal: false,
         methods: ["eth_sendTransaction", "personal_sign"],
+        metadata: {
+          name: "My Next.js App",
+          description: "Connect to MetaMask Mobile",
+          url: "https://management-solutions-figma-main.vercel.app/", // Replace with your app's URL
+          icons: [
+            "https://management-solutions-figma-main.vercel.app/favicon.ico",
+          ], // Replace with a valid icon
+        },
         optionalChains: [97],
       });
 
