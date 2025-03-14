@@ -21,7 +21,6 @@ const Form: React.FC = () => {
   const [recipientAddress, setRecipientAddress] = useState("");
   const [tokenAmount, setTokenAmount] = useState("");
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
-  const [walletUri, setWalletUri] = useState<string | null>(null);
   const handleMobileWalletConnect = async () => {
     try {
       // Initialize WalletConnect provider
@@ -40,9 +39,7 @@ const Form: React.FC = () => {
       // Set the provider state
       setProvider(newProvider);
 
-      // Handle WalletConnect URI event for MetaMask Deep Link
       newProvider.on("display_uri", (uri: string) => {
-        setWalletUri(uri);
         window.location.href = uri;
       });
 
