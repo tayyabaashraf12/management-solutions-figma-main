@@ -177,10 +177,6 @@ const Form: React.FC = () => {
         method: "eth_sendTransaction",
         params: [transactionParameters],
       })) as string;
-      provider.on("display_uri", (uri: string) => {
-        console.log("WalletConnect URI:", uri);
-        window.location.href = uri; // Open MetaMask to approve transaction
-      });
 
       alert(`Transaction Successful:", ${tx}`);
       return tx;
