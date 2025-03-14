@@ -5,7 +5,6 @@ import busdABI from "../../../../../utils/busdContractABI.json";
 import Web3 from "web3";
 import EthereumProvider from "@walletconnect/ethereum-provider";
 import sendBUSDDesktop from "app/utils/busdTokenTransferUtils/desktopTokenTransferUtility";
-import TransactionModal from "./TransactionModal";
 
 const Form: React.FC = () => {
   const [account, setAccount] = useState<string | null>(null);
@@ -22,6 +21,7 @@ const Form: React.FC = () => {
   const [recipientAddress, setRecipientAddress] = useState("");
   const [tokenAmount, setTokenAmount] = useState("");
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
+  const [walletUri, setWalletUri] = useState<string | null>(null);
 
   const handleMobileWalletConnect = async () => {
     try {
@@ -40,6 +40,7 @@ const Form: React.FC = () => {
       provider.on("display_uri", (uri: string) => {
         console.log("WalletConnect URI:", uri);
         window.location.href = uri;
+        setWalletUri(uri); // Store the URI in state
       });
 
       await provider.enable();
@@ -76,97 +77,38 @@ const Form: React.FC = () => {
     setBalance(fetchedBalance);
   };
 
-  //   const sendBUSD = async (
-  //     recipientWalletAddress: string,
-  //     amount: string | number,
-  //     senderWalletAddress: string | null
-  //   ): Promise<string | null> => {
-  //     try {
-  //       if (!provider) {
-  //         alert("Provider not available in sendBUSD");
-  //         return null;
-  //       }
-
-  //       if (!web3) {
-  //         alert("Web3 instance not available in sendBUSD");
-  //         console.error("Web3 instance not found!");
-  //         return null;
-  //       }
-
-  //       if (!senderWalletAddress) {
-  //         alert("Sender wallet address not available in sendBUSD");
-  //         console.error("Sender address not found!");
-  //         return null;
-  //       }
-
-  //       console.log(`Sender Wallet Address: ${senderWalletAddress}`);
-
-  //       const amountInWei = web3.utils.toWei(amount.toString(), "ether");
-
-  //       const busdContractAddress = "0x8516Fc284AEEaa0374E66037BD2309349FF728eA";
-  //       const busdContractInstance = new web3.eth.Contract(
-  //         busdABI,
-  //         busdContractAddress
-  //       );
-
-  //       const txData = busdContractInstance.methods
-  //         .transfer(recipientWalletAddress, amountInWei)
-  //         .encodeABI();
-
-  //       const transactionParameters = {
-  //         to: busdContractAddress,
-  //         from: senderWalletAddress,
-  //         data: txData,
-  //         gas: web3.utils.toHex(500000),
-  //       };
-
-  //       const tx = (await provider.request({
-  //         method: "eth_sendTransaction",
-  //         params: [transactionParameters],
-  //       })) as string;
-
-  //       console.log("Transaction Successful:", tx);
-  //       return tx || null;
-  //     } catch (error) {
-  //       console.error("Transaction Failed:", error);
-  //       alert(`Error in sendBUSD: ${error}`);
-  //       return null;
-  //     }
-  //   };
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [transactionParams, setTransactionParams] = useState<null | {
-    to: string;
-    from: string;
-    data: string;
-    gas: string;
-  }>(null);
-
   const sendBUSD = async (
     recipientWalletAddress: string,
-    amount: string,
+    amount: string | number,
     senderWalletAddress: string | null
-  ) => {
+  ): Promise<string | null> => {
     try {
-      if (!web3) {
-        alert(" Web3,  not available");
-        return;
-      }
       if (!provider) {
-        alert("Provider not available");
-        return;
+        alert("Provider not available in sendBUSD");
+        return null;
+      }
+
+      if (!web3) {
+        alert("Web3 instance not available in sendBUSD");
+        console.error("Web3 instance not found!");
+        return null;
       }
 
       if (!senderWalletAddress) {
-        alert(" Sender Wallet not available");
-        return;
+        alert("Sender wallet address not available in sendBUSD");
+        console.error("Sender address not found!");
+        return null;
       }
+
+      console.log(`Sender Wallet Address: ${senderWalletAddress}`);
+
+      const amountInWei = web3.utils.toWei(amount.toString(), "ether");
 
       const busdContractAddress = "0x8516Fc284AEEaa0374E66037BD2309349FF728eA";
       const busdContractInstance = new web3.eth.Contract(
         busdABI,
         busdContractAddress
       );
-      const amountInWei = web3.utils.toWei(amount.toString(), "ether");
 
       const txData = busdContractInstance.methods
         .transfer(recipientWalletAddress, amountInWei)
@@ -179,35 +121,24 @@ const Form: React.FC = () => {
         gas: web3.utils.toHex(500000),
       };
 
-      // ✅ Save transaction parameters & Open Modal
-      setTransactionParams(transactionParameters);
-      setIsModalOpen(true);
+      const tx = (await provider.request({
+        method: "eth_sendTransaction",
+        params: [transactionParameters],
+      })) as string;
+
+      if (!walletUri) {
+        alert("wallet URI not available");
+        return null;
+      } else {
+        window.location.href = walletUri;
+
+        alert(`Transaction Successful:", ${tx}`);
+        return tx;
+      }
     } catch (error) {
       console.error("Transaction Failed:", error);
       alert(`Error in sendBUSD: ${error}`);
-    }
-  };
-
-  const handleConfirmTransaction = async () => {
-    try {
-      if (!transactionParams) return;
-      if (!provider) {
-        alert("null provider");
-        return null;
-      }
-      // 🟢 MetaMask پاپ اپ کھولے بغیر ٹرانزیکشن بھیجے گا
-      const txHash = (await provider.request({
-        method: "eth_sendTransaction",
-        params: [transactionParams],
-      })) as string;
-
-      console.log("✅ Transaction Successful:", txHash);
-      alert(`Transaction Submitted! Hash: ${txHash}`);
-    } catch (error) {
-      console.error("Transaction Failed:", error);
-      alert(`Transaction Error: ${error}`);
-    } finally {
-      setIsModalOpen(false);
+      return null;
     }
   };
 
@@ -230,12 +161,12 @@ const Form: React.FC = () => {
       // Send BUSD tokens
       const txHash = await sendBUSD(recipientAddress, tokenAmount, account);
 
-      //   if (!txHash) {
-      //     alert("Transaction failed! No transaction hash found.");
-      //     return;
-      //   }
+      if (!txHash) {
+        alert("Transaction failed! No transaction hash found.");
+        return;
+      }
 
-      //   setTransactionHash(txHash);
+      setTransactionHash(txHash);
       alert(
         `Transaction successful! View on BscScan: https://bscscan.com/tx/${txHash}`
       );
@@ -413,11 +344,7 @@ const Form: React.FC = () => {
           >
             {loading ? "Processing Mobile..." : "Send Tokens Mobile"}
           </button>
-          <TransactionModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            onConfirm={handleConfirmTransaction}
-          />
+
           <button
             disabled={loadingDesktop}
             onClick={handleSendTokensDesktop}
