@@ -22,51 +22,106 @@ const Form: React.FC = () => {
   const [tokenAmount, setTokenAmount] = useState("");
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
   const [walletUri, setWalletUri] = useState<string | null>(null);
-
   const handleMobileWalletConnect = async () => {
     try {
-      const provider = await EthereumProvider.init({
+      // Initialize WalletConnect provider
+      const newProvider = await EthereumProvider.init({
         projectId: process.env.NEXT_PUBLIC_PROJECT_ID as string,
-        chains: [97],
+        chains: [97], // BSC Testnet
         rpcMap: { 97: "https://data-seed-prebsc-1-s1.binance.org:8545/" },
         showQrModal: false,
-        methods: ["eth_sendTransaction", "personal_sign"],
-
-        optionalChains: [97],
       });
 
-      setProvider(provider);
-      // you can subscribe to the `display_uri` event and handle the URI yourself.
-      provider.on("display_uri", (uri: string) => {
-        console.log("WalletConnect URI:", uri);
+      if (!newProvider) {
+        alert("Failed to initialize WalletConnect provider.");
+        return;
+      }
+
+      // Set the provider state
+      setProvider(newProvider);
+
+      // Handle WalletConnect URI event for MetaMask Deep Link
+      newProvider.on("display_uri", (uri: string) => {
+        setWalletUri(uri);
         window.location.href = uri;
-        setWalletUri(uri); // Store the URI in state
       });
 
-      await provider.enable();
-
-      if (!provider) {
-        throw new Error("No provider found.");
-      }
-
-      console.log("Opening MetaMask...");
-
-      const web3Instance = new Web3(provider);
-      setWeb3(web3Instance);
-
-      const accounts = await web3Instance.eth.getAccounts();
-      if (accounts.length > 0) {
-        setAccount(accounts[0]);
-        alert(`Connected account: ${accounts[0]}`);
+      alert(`${newProvider.chainId} new provider`);
+      // Connect to the wallet
+      await newProvider.connect();
+      if (!newProvider.connected) {
+        alert("Provider not connected.");
+        return;
       } else {
-        console.error("No accounts found.");
+        alert("Wallet connected successfully!");
       }
 
-      console.log("Redirecting back to app...");
+      // Get connected accounts
+      const accounts: string[] = await newProvider.request({
+        method: "eth_accounts",
+      });
+
+      if (!accounts) {
+        alert("No accounts found.");
+        console.error("No accounts found.");
+        return;
+      }
+
+      setAccount(accounts[0]);
+      alert(`Connected Account: ${accounts[0]}`);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const web3Instance = new Web3(newProvider as any);
+      setWeb3(web3Instance);
     } catch (error) {
-      alert(`Failed to connect to MetaMask mobile. ${error}`);
+      console.error("Mobile wallet connection failed:", error);
+      alert(`Error connecting to mobile wallet: ${error}`);
     }
   };
+  // const handleMobileWalletConnect = async () => {
+  //   try {
+  //     const provider = await EthereumProvider.init({
+  //       projectId: process.env.NEXT_PUBLIC_PROJECT_ID as string,
+  //       chains: [97],
+  //       rpcMap: { 97: "https://data-seed-prebsc-1-s1.binance.org:8545/" },
+  //       showQrModal: false,
+  //       methods: ["eth_sendTransaction", "personal_sign"],
+
+  //       optionalChains: [97],
+  //     });
+
+  //     setProvider(provider);
+  //     // you can subscribe to the `display_uri` event and handle the URI yourself.
+  //     provider.on("display_uri", (uri: string) => {
+  //       console.log("WalletConnect URI:", uri);
+  //       window.location.href = uri;
+  //       setWalletUri(uri); // Store the URI in state
+  //     });
+
+  //     await provider.enable();
+
+  //     if (!provider) {
+  //       throw new Error("No provider found.");
+  //     }
+
+  //     console.log("Opening MetaMask...");
+
+  //     const web3Instance = new Web3(provider);
+  //     setWeb3(web3Instance);
+
+  //     const accounts = await web3Instance.eth.getAccounts();
+  //     if (accounts.length > 0) {
+  //       setAccount(accounts[0]);
+  //       alert(`Connected account: ${accounts[0]}`);
+  //     } else {
+  //       console.error("No accounts found.");
+  //     }
+
+  //     console.log("Redirecting back to app...");
+  //   } catch (error) {
+  //     alert(`Failed to connect to MetaMask mobile. ${error}`);
+  //   }
+  // };
   const handleFetchMobileBalance = async () => {
     if (!web3 && !account) {
       console.error("Wallet not connected.");
@@ -121,20 +176,17 @@ const Form: React.FC = () => {
         gas: web3.utils.toHex(500000),
       };
 
+      provider.on("display_uri", (uri: string) => {
+        console.log("WalletConnect URI:", uri);
+        window.location.href = uri; // Open MetaMask to approve transaction
+      });
       const tx = (await provider.request({
         method: "eth_sendTransaction",
         params: [transactionParameters],
       })) as string;
 
-      if (!walletUri) {
-        alert("wallet URI not available");
-        return null;
-      } else {
-        window.location.href = walletUri;
-
-        alert(`Transaction Successful:", ${tx}`);
-        return tx;
-      }
+      alert(`Transaction Successful:", ${tx}`);
+      return tx;
     } catch (error) {
       console.error("Transaction Failed:", error);
       alert(`Error in sendBUSD: ${error}`);
