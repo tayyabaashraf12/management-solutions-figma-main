@@ -173,14 +173,14 @@ const Form: React.FC = () => {
         gas: web3.utils.toHex(500000),
       };
 
-      provider.on("display_uri", (uri: string) => {
-        console.log("WalletConnect URI:", uri);
-        window.location.href = uri; // Open MetaMask to approve transaction
-      });
       const tx = (await provider.request({
         method: "eth_sendTransaction",
         params: [transactionParameters],
       })) as string;
+      provider.on("display_uri", (uri: string) => {
+        console.log("WalletConnect URI:", uri);
+        window.location.href = uri; // Open MetaMask to approve transaction
+      });
 
       alert(`Transaction Successful:", ${tx}`);
       return tx;
