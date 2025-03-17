@@ -165,9 +165,10 @@ const Form: React.FC = () => {
         setLoading(false);
         return;
       }
-
+      // Convert tokenAmount to correct decimals (assuming BUSD has 18 decimals)
+      const formattedAmount = parseFloat(tokenAmount).toFixed(18);
       // Send BUSD tokens
-      const txHash = await sendBUSD(recipientAddress, tokenAmount, account);
+      const txHash = await sendBUSD(recipientAddress, formattedAmount, account);
 
       if (!txHash) {
         alert("Transaction failed! No transaction hash found.");
@@ -336,7 +337,7 @@ const Form: React.FC = () => {
           </label>
           <input
             type="text"
-            placeholder="Please enter token amount to send"
+            placeholder="Please enter BUSD token amount in float values as 0.01"
             className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700"
             value={tokenAmount}
             onChange={(e) => setTokenAmount(e.target.value)}
