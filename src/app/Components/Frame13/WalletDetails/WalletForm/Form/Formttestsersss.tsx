@@ -4,7 +4,6 @@ import fetchBalance from "../../../../../utils/FetchBalanceMobileDesktop";
 import busdABI from "../../../../../utils/busdContractABI.json";
 import Web3 from "web3";
 import EthereumProvider from "@walletconnect/ethereum-provider";
-// import sendBUSD from "app/utils/busdTokenTransferUtils/TokenTransferUtility";
 import sendBUSDDesktop from "app/utils/busdTokenTransferUtils/desktopTokenTransferUtility";
 
 const Form: React.FC = () => {

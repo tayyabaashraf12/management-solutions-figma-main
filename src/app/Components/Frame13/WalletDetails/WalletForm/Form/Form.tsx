@@ -21,6 +21,7 @@ const Form: React.FC = () => {
   const [recipientAddress, setRecipientAddress] = useState("");
   const [tokenAmount, setTokenAmount] = useState("");
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
+
   const handleMobileWalletConnect = async () => {
     try {
       // Initialize WalletConnect provider
@@ -28,7 +29,7 @@ const Form: React.FC = () => {
         projectId: process.env.NEXT_PUBLIC_PROJECT_ID as string,
         chains: [97], // BSC Testnet
         rpcMap: { 97: "https://data-seed-prebsc-1-s1.binance.org:8545/" },
-        showQrModal: false,
+        showQrModal: true,
       });
 
       if (!newProvider) {
@@ -39,9 +40,10 @@ const Form: React.FC = () => {
       // Set the provider state
       setProvider(newProvider);
 
-      newProvider.on("display_uri", (uri: string) => {
-        window.location.href = uri;
-      });
+      // newProvider.on("display_uri", (uri: string) => {
+      //   // setWalletUri(uri);
+      //   window.location.href = uri;
+      // });
 
       alert(`${newProvider.chainId} new provider`);
       // Connect to the wallet
@@ -75,50 +77,7 @@ const Form: React.FC = () => {
       alert(`Error connecting to mobile wallet: ${error}`);
     }
   };
-  // const handleMobileWalletConnect = async () => {
-  //   try {
-  //     const provider = await EthereumProvider.init({
-  //       projectId: process.env.NEXT_PUBLIC_PROJECT_ID as string,
-  //       chains: [97],
-  //       rpcMap: { 97: "https://data-seed-prebsc-1-s1.binance.org:8545/" },
-  //       showQrModal: false,
-  //       methods: ["eth_sendTransaction", "personal_sign"],
 
-  //       optionalChains: [97],
-  //     });
-
-  //     setProvider(provider);
-  //     // you can subscribe to the `display_uri` event and handle the URI yourself.
-  //     provider.on("display_uri", (uri: string) => {
-  //       console.log("WalletConnect URI:", uri);
-  //       window.location.href = uri;
-  //       setWalletUri(uri); // Store the URI in state
-  //     });
-
-  //     await provider.enable();
-
-  //     if (!provider) {
-  //       throw new Error("No provider found.");
-  //     }
-
-  //     console.log("Opening MetaMask...");
-
-  //     const web3Instance = new Web3(provider);
-  //     setWeb3(web3Instance);
-
-  //     const accounts = await web3Instance.eth.getAccounts();
-  //     if (accounts.length > 0) {
-  //       setAccount(accounts[0]);
-  //       alert(`Connected account: ${accounts[0]}`);
-  //     } else {
-  //       console.error("No accounts found.");
-  //     }
-
-  //     console.log("Redirecting back to app...");
-  //   } catch (error) {
-  //     alert(`Failed to connect to MetaMask mobile. ${error}`);
-  //   }
-  // };
   const handleFetchMobileBalance = async () => {
     if (!web3 && !account) {
       console.error("Wallet not connected.");
@@ -162,24 +121,28 @@ const Form: React.FC = () => {
         busdContractAddress
       );
 
-      const txData = busdContractInstance.methods
+      const tx = await busdContractInstance.methods
         .transfer(recipientWalletAddress, amountInWei)
-        .encodeABI();
+        .send({ from: senderWalletAddress });
 
-      const transactionParameters = {
-        to: busdContractAddress,
-        from: senderWalletAddress,
-        data: txData,
-        gas: web3.utils.toHex(500000),
-      };
+      console.log("Transaction Successful:", tx);
+      if (tx.transactionHash) {
+        alert(`transaction Hash ${tx.transactionHash}`);
+      } else {
+        alert(`error while generating transaction hash `);
+      }
+      return tx.transactionHash;
+      // const transactionParameters = {
+      //   to: busdContractAddress,
+      //   from: senderWalletAddress,
+      //   data: txData,
+      //   gas: web3.utils.toHex(500000),
+      // };
 
-      const tx = (await provider.request({
-        method: "eth_sendTransaction",
-        params: [transactionParameters],
-      })) as string;
-
-      alert(`Transaction Successful:", ${tx}`);
-      return tx;
+      // const tx = (await provider.request({
+      //   method: "eth_sendTransaction",
+      //   params: [transactionParameters],
+      // })) as string;
     } catch (error) {
       console.error("Transaction Failed:", error);
       alert(`Error in sendBUSD: ${error}`);

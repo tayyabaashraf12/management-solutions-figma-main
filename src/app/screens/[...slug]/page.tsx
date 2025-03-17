@@ -16,6 +16,7 @@ import Frame10 from "app/Components/Frame10";
 import Frame11 from "app/Components/Frame11";
 import Frame12 from "app/Components/Frame12";
 import Frame13 from "app/Components/Frame13";
+import Frame14 from "app/Components/Frame14";
 
 type FrameMappingType = Record<string, ReactNode>;
 
@@ -33,6 +34,7 @@ const frameMapping: FrameMappingType = {
   frame11: <Frame11 />,
   frame12: <Frame12 />,
   frame13: <Frame13 />,
+  frame14: <Frame14 />,
 };
 
 const orderedFrames = Object.keys(frameMapping);

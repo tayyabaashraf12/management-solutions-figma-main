@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.67.3",
     "@walletconnect/client": "^1.8.0",
     "@walletconnect/ethereum-provider": "^2.19.0",
     "dotenv": "^16.4.7",
@@ -16,6 +17,8 @@
     "next": "15.1.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "viem": "^2.23.10",
+    "wagmi": "^2.14.13",
     "web3": "^4.16.0"
   },
   "devDependencies": {
