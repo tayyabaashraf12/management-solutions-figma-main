@@ -2,23 +2,28 @@ import Web3 from "web3";
 
 const fetchBalance = async (
   web3: Web3 | null,
-  account: string | null
-): Promise<string | null> => {
+  provider: any,
+  account: string | null,
+  setBalance: (balance: string) => void
+) => {
   try {
-    if (!web3) {
-      console.error("Web3 instance  not initialized.");
-      return null;
+    let balanceWei;
+    if (!web3 || !account) {
+      console.error("Wallet not connected.");
+      return;
     }
-    if (!account) {
-      console.error(" connected account not found.");
-      return null;
+    if (provider) {
+      balanceWei = await provider.request({
+        method: "eth_getBalance",
+        params: [account, "latest"],
+      });
+    } else {
+      balanceWei = await web3.eth.getBalance(account);
     }
-
-    const balanceWei = await web3.eth.getBalance(account);
-    return web3.utils.fromWei(balanceWei, "ether");
+    const balanceEth = Web3.utils.fromWei(balanceWei, "ether");
+    setBalance(balanceEth);
   } catch (error) {
     console.error("Error fetching balance:", error);
-    return null;
   }
 };
 

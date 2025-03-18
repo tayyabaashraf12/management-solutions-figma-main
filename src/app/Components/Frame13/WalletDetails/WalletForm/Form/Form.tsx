@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import fetchBalance from "../../../../../utils/FetchBalanceMobileDesktop";
-import busdABI from "../../../../../utils/busdContractABI.json";
+import { abi } from "../../../../../utils/busdABI";
 import Web3 from "web3";
 import EthereumProvider from "@walletconnect/ethereum-provider";
 import sendBUSDDesktop from "app/utils/busdTokenTransferUtils/desktopTokenTransferUtility";
@@ -84,8 +84,8 @@ const Form: React.FC = () => {
       return;
     }
 
-    const fetchedBalance = await fetchBalance(web3, account);
-    setBalance(fetchedBalance);
+    // const fetchedBalance = await fetchBalance(web3, account);
+    // setBalance(fetchedBalance);
   };
 
   const sendBUSD = async (
@@ -117,7 +117,7 @@ const Form: React.FC = () => {
 
       const busdContractAddress = "0x8516Fc284AEEaa0374E66037BD2309349FF728eA";
       const busdContractInstance = new web3.eth.Contract(
-        busdABI,
+        abi,
         busdContractAddress
       );
 
@@ -223,8 +223,8 @@ const Form: React.FC = () => {
       return;
     }
 
-    const fetchedBalance = await fetchBalance(web3Instance, accountDesktop);
-    setBalance(fetchedBalance);
+    // const fetchedBalance = await fetchBalance(web3Instance, accountDesktop);
+    // setBalance(fetchedBalance);
   };
 
   const handleSendTokensDesktop = async (e: React.FormEvent) => {

@@ -16,16 +16,15 @@ function ConnectWallet() {
 }
 
 const Frame14 = () => {
-  return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <div className="w-[760px] h-[500px] relative top-[90px] left-[0px] bg-[#071410]">
-          <ConnectWallet />
-          <TransferTokens />
-        </div>
-      </QueryClientProvider>
-    </WagmiProvider>
-  );
+  
+  <WagmiProvider config={config}>
+    <QueryClientProvider client={queryClient}>
+      <div className="w-[760px] h-[500px] relative top-[90px] left-[0px] bg-[#071410]">
+        <ConnectWallet />
+        <TransferTokens />
+      </div>
+    </QueryClientProvider>
+  </WagmiProvider>
 };
 
 export default Frame14;

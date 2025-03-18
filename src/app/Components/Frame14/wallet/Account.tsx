@@ -9,7 +9,11 @@ export function Account() {
   return (
     <div className="bg-[#FFFFFF] h-20 flex flex-col">
       {ensAvatar && <img alt="ENS Avatar" src={ensAvatar} />}
-      {/* address && <div>{ensName ? `${ensName} (${address})` : address}</div> */}
+      {address && (
+        <div className="text-center border border-red-950 h-6 w-full">
+          {ensName ? `${ensName} (${address})` : address}
+        </div>
+      )}
       <div className="text-center border border-red-950 h-6 w-full">
         Account Connected
       </div>
