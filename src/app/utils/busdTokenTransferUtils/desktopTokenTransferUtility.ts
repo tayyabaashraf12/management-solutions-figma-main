@@ -1,5 +1,5 @@
 import Web3 from "web3";
-import busdABI from "../busdContractABI.json";
+import { abi } from "../busdABI";
 const sendBUSDDesktop = async (
   recipientWalletAddress: string,
   amount: string | number,
@@ -25,7 +25,7 @@ const sendBUSDDesktop = async (
 
     const busdContractAddress = "0x8516Fc284AEEaa0374E66037BD2309349FF728eA";
     const busdContractInstance = new web3.eth.Contract(
-      busdABI,
+      abi,
       busdContractAddress
     );
 

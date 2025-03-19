@@ -4,7 +4,7 @@ import { Provider } from "react-redux";
 
 import SidebarNavigation from "./SidebarNavigation/SidebarNavigation";
 import WalletDetails from "./WalletDetails/WalletDetails";
-import store from "redux/store";
+import store from "../../../redux/store";
 
 const Frame13 = () => {
   return (

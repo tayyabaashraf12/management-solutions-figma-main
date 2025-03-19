@@ -2,6 +2,7 @@ import Web3 from "web3";
 
 const fetchBalance = async (
   web3: Web3 | null,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   provider: any,
   account: string | null,
   setBalance: (balance: string) => void

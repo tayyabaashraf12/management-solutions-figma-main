@@ -6,6 +6,7 @@ const sendBUSD = async (
   amount: string | number,
   senderWalletAddress: string | null,
   web3: Web3 | null,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   provider: any
 ): Promise<string | null> => {
   try {
