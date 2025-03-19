@@ -41,10 +41,6 @@ const FormNew: React.FC = () => {
 
   // Fetch Balance Handler
   const handleFetchBalance = async () => {
-    if (!web3 || !provider || !account) {
-      alert("Please connect your wallet first.");
-      return;
-    }
     fetchBalance(web3, provider, account, (balance) =>
       dispatch(setBalance(balance))
     );
