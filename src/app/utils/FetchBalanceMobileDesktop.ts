@@ -8,20 +8,21 @@ const fetchBalance = async (
 ) => {
   try {
     let balanceWei;
-    if (!web3 || !account) {
-      console.error("Wallet not connected.");
-      return;
-    }
+
     if (provider) {
       balanceWei = await provider.request({
         method: "eth_getBalance",
         params: [account, "latest"],
       });
-    } else {
+    }
+
+    if (web3 && account) {
       balanceWei = await web3.eth.getBalance(account);
     }
+
     const balanceEth = Web3.utils.fromWei(balanceWei, "ether");
     setBalance(balanceEth);
+    alert(`Balance is ${balanceWei}`);
   } catch (error) {
     console.error("Error fetching balance:", error);
   }

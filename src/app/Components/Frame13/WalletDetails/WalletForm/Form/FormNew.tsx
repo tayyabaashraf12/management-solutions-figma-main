@@ -1,22 +1,55 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Web3 from "web3";
-import EthereumProvider from "@walletconnect/ethereum-provider";
 import { connectWallet } from "../../../../../utils/walletConnect";
 import fetchBalance from "app/utils/FetchBalanceMobileDesktop";
 import sendBUSD from "app/utils/sendBUSD";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../../../../../redux/store";
+import {
+  setAccount,
+  setProvider,
+  setBalance,
+  setTransactionHash,
+} from "../../../../../../redux/slices/walletSlice";
 
 const FormNew: React.FC = () => {
-  const [account, setAccount] = useState<string | null>(null);
-  const [web3, setWeb3] = useState<Web3 | null>(null);
-  const [balance, setBalance] = useState<string | null>(null);
+  const [web3, setWeb3] = useState<Web3 | null>(null); // Local state for Web3 instance
+
+  const dispatch = useDispatch();
+
+  // Redux states
+  const account = useSelector((state: RootState) => state.wallet.account);
+  const balance = useSelector((state: RootState) => state.wallet.balance);
+  const provider = useSelector((state: RootState) => state.wallet.provider);
+  const transactionHash = useSelector(
+    (state: RootState) => state.wallet.transactionHash
+  );
+
   const [recipientAddress, setRecipientAddress] = useState("");
   const [tokenAmount, setTokenAmount] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [provider, setProvider] = useState<EthereumProvider | null>(null);
-  const [transactionHash, setTransactionHash] = useState<string | null>(null);
+  // Connect Wallet Handler
+  const handleConnectWallet = async () => {
+    await connectWallet(
+      (web3) => setWeb3(web3),
+      (account) => dispatch(setAccount(account)),
+      (provider) => dispatch(setProvider(provider))
+    );
+  };
 
+  // Fetch Balance Handler
+  const handleFetchBalance = async () => {
+    if (!web3 || !provider || !account) {
+      alert("Please connect your wallet first.");
+      return;
+    }
+    fetchBalance(web3, provider, account, (balance) =>
+      dispatch(setBalance(balance))
+    );
+  };
+  // Send Tokens Handler
   const handleSendTokens = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!recipientAddress || !tokenAmount) {
@@ -26,7 +59,6 @@ const FormNew: React.FC = () => {
 
     try {
       setLoading(true);
-
       const formattedAmount = parseFloat(tokenAmount).toFixed(18);
       const txHash = await sendBUSD(
         recipientAddress,
@@ -41,11 +73,10 @@ const FormNew: React.FC = () => {
         return;
       }
 
-      setTransactionHash(txHash);
+      dispatch(setTransactionHash(txHash));
       alert(
         `Transaction successful! View on BscScan: https://bscscan.com/tx/${txHash}`
       );
-
       setRecipientAddress("");
       setTokenAmount("");
     } catch (error) {
@@ -62,7 +93,7 @@ const FormNew: React.FC = () => {
         <div className="w-full py-2 px-20">
           <button
             className="w-[300px] h-[40px] bg-[#263238] text-[#FFFFFF] rounded-[6px] py-[8px] px-[12px] gap-[8px]"
-            onClick={() => connectWallet(setWeb3, setAccount, setProvider)}
+            onClick={handleConnectWallet}
           >
             {account ? "Wallet Connected" : "Connect Wallet"}
           </button>
@@ -70,7 +101,7 @@ const FormNew: React.FC = () => {
         <div className="w-full py-2 px-20">
           <button
             className="w-[300px] h-[40px] bg-[#263238] text-[#FFFFFF] rounded-[6px] py-[8px] px-[12px] gap-[8px]"
-            onClick={() => fetchBalance(web3, provider, account, setBalance)}
+            onClick={handleFetchBalance}
           >
             Fetch Wallet Balance
           </button>
